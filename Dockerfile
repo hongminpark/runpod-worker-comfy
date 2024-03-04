@@ -13,7 +13,10 @@ RUN apt-get update && apt-get install -y \
     python3.10 \
     python3-pip \
     git \
-    wget
+    wget \
+    libsm6 \
+    libxext6 \
+    ffmpeg
 
 # Clean up to reduce image size
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
@@ -33,14 +36,40 @@ RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https:/
 RUN pip3 install runpod requests
 
 # Download checkpoints/vae/LoRA to include in image
-RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
-RUN wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors
-RUN wget -O models/vae/sdxl-vae-fp16-fix.safetensors https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors
-RUN wget -O models/loras/xl_more_art-full_v1.safetensors https://civitai.com/api/download/models/152309
+# RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+# RUN wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors
+# RUN wget -O models/vae/sdxl-vae-fp16-fix.safetensors https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors
+# RUN wget -O models/loras/xl_more_art-full_v1.safetensors https://civitai.com/api/download/models/152309
 
-# Example for adding specific models into image
-# ADD models/checkpoints/sd_xl_base_1.0.safetensors models/checkpoints/
-# ADD models/vae/sdxl_vae.safetensors models/vae/
+# Add models
+ADD models/checkpoints/beautifulRealistic_v60.safetensors models/checkpoints/
+ADD models/controlnet/control_v11p_sd15_openpose.pth models/controlnet/
+ADD models/embeddings/bad_prompt_version2-neg.pt models/embeddings/
+ADD models/embeddings/easynegative.safetensors models/embeddings/
+ADD models/embeddings/ng_deepnegative_v1_75t.pt models/embeddings/
+ADD models/vae/vae-ft-mse-840000-ema-pruned.safetensors models/vae/
+
+# Install custom nodes
+RUN git clone https://github.com/ltdrdata/ComfyUI-Manager /comfyui/custom_nodes/ComfyUI-Manager
+WORKDIR /comfyui/custom_nodes/ComfyUI-Manager
+RUN pip3 install -r requirements.txt
+
+
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack /comfyui/custom_nodes/ComfyUI-Impact-Pack
+WORKDIR /comfyui/custom_nodes/ComfyUI-Impact-Pack
+RUN pip3 install -r requirements.txt
+
+RUN git clone https://github.com/Fannovel16/comfyui_controlnet_aux /comfyui/custom_nodes/comfyui_controlnet_aux
+WORKDIR /comfyui/custom_nodes/comfyui_controlnet_aux
+RUN pip3 install -r requirements.txt
+
+RUN git clone https://github.com/cubiq/ComfyUI_IPAdapter_plus /comfyui/custom_nodes/ComfyUI_IPAdapter_plus
+WORKDIR /comfyui/custom_nodes/ComfyUI_IPAdapter_plus
+RUN pip3 install -r requirements.txt
+
+RUN git clone https://github.com/pythongosssss/ComfyUI-WD14-Tagger /comfyui/custom_nodes/ComfyUI-WD14-Tagger
+WORKDIR /comfyui/custom_nodes/ComfyUI-WD14-Tagger
+RUN pip3 install -r requirements.txt
 
 # Go back to the root
 WORKDIR /
