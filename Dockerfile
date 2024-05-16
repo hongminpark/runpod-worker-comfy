@@ -42,18 +42,12 @@ RUN pip3 install runpod requests
 # RUN wget -O models/loras/xl_more_art-full_v1.safetensors https://civitai.com/api/download/models/152309
 
 # Add models
-ADD models/checkpoints/beautifulRealistic_v60.safetensors models/checkpoints/
-ADD models/controlnet/control_v11p_sd15_openpose.pth models/controlnet/
-ADD models/embeddings/bad_prompt_version2-neg.pt models/embeddings/
-ADD models/embeddings/easynegative.safetensors models/embeddings/
-ADD models/embeddings/ng_deepnegative_v1_75t.pt models/embeddings/
-ADD models/vae/vae-ft-mse-840000-ema-pruned.safetensors models/vae/
+ADD models/ models/
 
 # Install custom nodes
 RUN git clone https://github.com/ltdrdata/ComfyUI-Manager /comfyui/custom_nodes/ComfyUI-Manager
 WORKDIR /comfyui/custom_nodes/ComfyUI-Manager
 RUN pip3 install -r requirements.txt
-
 
 RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack /comfyui/custom_nodes/ComfyUI-Impact-Pack
 WORKDIR /comfyui/custom_nodes/ComfyUI-Impact-Pack
@@ -64,12 +58,12 @@ WORKDIR /comfyui/custom_nodes/comfyui_controlnet_aux
 RUN pip3 install -r requirements.txt
 
 RUN git clone https://github.com/cubiq/ComfyUI_IPAdapter_plus /comfyui/custom_nodes/ComfyUI_IPAdapter_plus
-WORKDIR /comfyui/custom_nodes/ComfyUI_IPAdapter_plus
-RUN pip3 install -r requirements.txt
+# WORKDIR /comfyui/custom_nodes/ComfyUI_IPAdapter_plus
+# RUN pip3 install -r requirements.txt
 
-RUN git clone https://github.com/pythongosssss/ComfyUI-WD14-Tagger /comfyui/custom_nodes/ComfyUI-WD14-Tagger
-WORKDIR /comfyui/custom_nodes/ComfyUI-WD14-Tagger
-RUN pip3 install -r requirements.txt
+RUN git clone https://github.com/shiimizu/ComfyUI-TiledDiffusion /comfyui/custom_nodes/ComfyUI-TiledDiffusion
+# WORKDIR /comfyui/custom_nodes/ComfyUI-TiledDiffusion
+# RUN pip3 install -r requirements.txt
 
 # Go back to the root
 WORKDIR /
@@ -77,6 +71,8 @@ WORKDIR /
 # Add the start and the handler
 ADD src/start.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh
+
+EXPOSE 8188
 
 # Start the container
 CMD /start.sh
